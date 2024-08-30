@@ -1,5 +1,5 @@
 // app/src/main/java/ca/learnprogramming/network/AccessTokenResponse.kt
-package ca.learnprogramming.network
+package ca.learnprogramming.model
 
 data class AccessTokenResponse(
     val data: AccessTokenData

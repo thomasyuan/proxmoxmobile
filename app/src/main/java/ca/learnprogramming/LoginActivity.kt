@@ -12,8 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import ca.learnprogramming.network.ProxmoxApi
-import ca.learnprogramming.network.RetrofitInstance
+import ca.learnprogramming.network.ProxmoxApiService
 import ca.learnprogramming.ui.LoginScreen
 import ca.learnprogramming.ui.theme.ProxmoxMobileTheme
 import kotlinx.coroutines.CoroutineScope
@@ -88,12 +87,6 @@ class LoginActivity : ComponentActivity() {
         val password: String
     )
 
-    private fun preprocessCredentials(url: String, username: String, password: String): ProcessedCredentials {
-        val processedUrl = url.trim().removeSuffix("/") + "/api2/json/"
-        val processedUsername = username.trim() + "@pam"
-        return ProcessedCredentials(processedUrl, processedUsername, password)
-    }
-
     private fun handleLogin(
         url: String,
         username: String,
@@ -101,16 +94,12 @@ class LoginActivity : ComponentActivity() {
         coroutineScope: CoroutineScope,
         snackbarHostState: SnackbarHostState
     ) {
-        val credentials = preprocessCredentials(url, username, password)
         coroutineScope.launch(Dispatchers.IO) {
             try {
-                val api = RetrofitInstance.getInstance(credentials.url).create(ProxmoxApi::class.java)
-                val accessTokenResponse = api.getAccessToken(credentials.username, credentials.password)
-                Log.d("LoginActivity", "Response: $accessTokenResponse")
-                val accessToken = accessTokenResponse.data.ticket
-                val csrfToken = accessTokenResponse.data.CSRFPreventionToken
-                RetrofitInstance.setAccessToken(accessToken)
-                TokenManager.saveAccessToken(this@LoginActivity, accessToken)
+                ProxmoxApiService.init(url)
+                ProxmoxApiService.login(username, password)
+
+                TokenManager.saveAccessToken(this@LoginActivity, ProxmoxApiService.getAccessToken())
                 TokenManager.saveUrlAndUsername(this@LoginActivity, url, username)
                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))
             } catch (e: Exception) {

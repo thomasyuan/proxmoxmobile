@@ -1,6 +1,8 @@
 // app/src/main/java/ca/learnprogramming/network/UnsafeOkHttpClient.kt
 package ca.learnprogramming.network
 
+import okhttp3.Authenticator
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import java.security.cert.CertificateException
 import javax.net.ssl.*
