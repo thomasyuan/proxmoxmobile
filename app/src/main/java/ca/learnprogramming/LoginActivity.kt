@@ -102,16 +102,16 @@ class LoginActivity : ComponentActivity() {
         snackbarHostState: SnackbarHostState
     ) {
         val credentials = preprocessCredentials(url, username, password)
-        Log.d("LoginCredentials", "URL: ${credentials.url}, Username: ${credentials.username}, Password: ${credentials.password}")
         coroutineScope.launch(Dispatchers.IO) {
             try {
                 val api = RetrofitInstance.getInstance(credentials.url).create(ProxmoxApi::class.java)
                 val accessTokenResponse = api.getAccessToken(credentials.username, credentials.password)
+                Log.d("LoginActivity", "Response: $accessTokenResponse")
                 val accessToken = accessTokenResponse.data.ticket
                 val csrfToken = accessTokenResponse.data.CSRFPreventionToken
-                Log.d("AccessToken", accessToken)
-                Log.d("CSRFToken", csrfToken)
                 RetrofitInstance.setAccessToken(accessToken)
+                TokenManager.saveAccessToken(this@LoginActivity, accessToken)
+                TokenManager.saveUrlAndUsername(this@LoginActivity, url, username)
                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))
             } catch (e: Exception) {
                 Log.e("LoginError", "Login failed", e)

@@ -1,6 +1,7 @@
 // app/src/main/java/ca/learnprogramming/network/ProxmoxApi.kt
 package ca.learnprogramming.network
 
+import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -15,6 +16,9 @@ interface ProxmoxApi {
         @Field("username") username: String,
         @Field("password") password: String
     ): AccessTokenResponse
+
+    @GET("version")
+    suspend fun validateToken(@Header("Authorization") token: String): Response<AccessTokenResponse>
 
     @GET("access/ticket/info")
     suspend fun getTicketInfo(
